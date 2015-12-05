@@ -28,7 +28,8 @@ if [[ $HHVM == "true" ]]; then
     sudo /usr/bin/update-alternatives --install /usr/bin/php php /usr/bin/hhvm 60
 
     sudo service hhvm restart
-else
+fi
+if [$HHVM == "false" && [$PHP_VERSION == "5.5" || $PHP_VERSION == "5.6"] ]
     echo ">>> Installing PHP $PHP_VERSION"
 
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C
@@ -40,9 +41,8 @@ else
         # Add repo for PHP 5.6
         sudo add-apt-repository -y ppa:ondrej/php5-5.6
     fi
-
-    sudo apt-key update
-    sudo apt-get update
+    
+    
 
     # Install PHP
     # -qq implies -y --force-yes
@@ -89,4 +89,28 @@ EOF
     sudo sed -i "s/;date.timezone =.*/date.timezone = ${PHP_TIMEZONE/\//\\/}/" /etc/php5/cli/php.ini
 
     sudo service php5-fpm restart
+fi
+if [$HHVM == "false" && [$PHP_VERSION == "7.0"] ]
+    sudo add-apt-repository -y ppa:ondrej/php-7.0
+    sudo apt-key update
+    sudo apt-get update
+    
+    sudo apt-get install -qq php7.0 php7.0-cli php7.0-fpm php7.0-mysql php7.0-pgsql php7.0-sqlite php7.0-curl php7.0-gd php7.0-intl
+
+    # Set PHP FPM to listen on TCP instead of Socket
+    sudo sed -i "s/listen =.*/listen = 127.0.0.1:9000/" /etc/php/7.0/fpm/pool.d/www.conf
+
+    # Set PHP FPM allowed clients IP address
+    sudo sed -i "s/;listen.allowed_clients/listen.allowed_clients/" /etc/php/7.0/fpm/pool.d/www.conf
+
+    # Set run-as user for PHP/7.0-FPM processes to user/group "vagrant"
+    # to avoid permission errors from apps writing to files
+    sudo sed -i "s/user = www-data/user = vagrant/" /etc/php/7.0/fpm/pool.d/www.conf
+    sudo sed -i "s/group = www-data/group = vagrant/" /etc/php/7.0/fpm/pool.d/www.conf
+
+    sudo sed -i "s/listen\.owner.*/listen.owner = vagrant/" /etc/php/7.0/fpm/pool.d/www.conf
+    sudo sed -i "s/listen\.group.*/listen.group = vagrant/" /etc/php/7.0/fpm/pool.d/www.conf
+    sudo sed -i "s/listen\.mode.*/listen.mode = 0666/" /etc/php/7.0/fpm/pool.d/www.conf
+
+    sudo service php7.0-fpm restart
 fi
