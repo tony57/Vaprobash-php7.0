@@ -3,7 +3,7 @@
 
 # Config Github Settings
 github_username = "mikaelmattsson"
-github_repo     = "Vaprobash"
+github_repo     = "Vaprobash-php7.0"
 github_branch   = "master"
 github_url      = "https://raw.githubusercontent.com/#{github_username}/#{github_repo}/#{github_branch}"
 
