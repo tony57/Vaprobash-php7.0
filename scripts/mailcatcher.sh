@@ -13,17 +13,18 @@ APACHE_IS_INSTALLED=$?
 # Installing dependency
 # -qq implies -y --force-yes
 sudo apt-get install -qq libsqlite3-dev ruby1.9.1-dev
+sudo gem install mime-types --version '<3'
 
 if $(which rvm) -v > /dev/null 2>&1; then
 	echo ">>>>Installing with RVM"
-	$(which rvm) default@mailcatcher --create do gem install --no-rdoc --no-ri mailcatcher
+	$(which rvm) default@mailcatcher --create do gem install --no-rdoc --no-ri --conservative mailcatcher
 	$(which rvm) wrapper default@mailcatcher --no-prefix mailcatcher catchmail
 else
 	# Gem check
 	if ! gem -v > /dev/null 2>&1; then sudo aptitude install -y libgemplugin-ruby; fi
 
 	# Install
-	gem install --no-rdoc --no-ri mailcatcher
+	gem install --no-rdoc --no-ri --conservative mailcatcher
 fi
 
 # Make it start on boot
